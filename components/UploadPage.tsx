@@ -1,8 +1,8 @@
 "use client";
 import ImageUpload from "@/components/ImageUpload";
 import { Product } from "@/interfaces/Product";
-// import { saveAsDraft } from "@/utils/actions";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { saveAsDraft } from "@/utils/actions";
+import { useEffect, useState } from "react";
 import {
   btn_green,
   btn_red,
@@ -12,8 +12,20 @@ import {
 } from "./UploadPage.styles";
 
 const UploadPage = () => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [token, setToken] = useState<string | null>(null);
+  // const token = localStorage.getItem("token");
+
+  // if (!token) {
+  //   return (
+  //     <main className={main}>
+  //       <section className={upload_section}>
+  //         <h2 className={title}>Please log in to upload products</h2>
+  //       </section>
+  //     </main>
+  //   );
+  // }
+
+  // console.log("Token:", token);
+
   const [data, setData] = useState<Product>({
     name: "",
     description: "",
@@ -26,7 +38,7 @@ const UploadPage = () => {
   });
 
   useEffect(() => {
-    // saveAsDraft(data, token!);
+    // saveAsDraft(data);
   }, [
     data.name,
     data.description,
@@ -39,39 +51,6 @@ const UploadPage = () => {
   useEffect(() => {
     // saveAsDraft(data, token!);
   }, [data.thumbnail, data.images]);
-
-  useLayoutEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== "http://localhost:4200") return;
-
-      if (event.data.token) {
-        setToken(event.data.token);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    // Send READY message to parent
-    window.parent.postMessage({ type: "READY" }, "http://localhost:4200");
-
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
-
-  useLayoutEffect(() => {
-    if (token) {
-      setLoading(false);
-    }
-  }, [token]);
-
-  if (loading) {
-    return (
-      <main className={main}>
-        <section className={upload_section}>
-          <h2 className={title}>Loading...</h2>
-        </section>
-      </main>
-    );
-  }
 
   return (
     <main className={main}>

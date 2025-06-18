@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies } from "next/headers";
+
 export async function uploadToCloudinary(file: File) {
   try {
     const response = await fetch(`${process.env.BASE_URL}/cloudinary/sign`, {
@@ -41,7 +43,14 @@ export async function deleteFromCloudinary(publicId: string) {
   }
 }
 
-export async function saveAsDraft(product: any, token: string) {
+export async function saveAsDraft(product: any) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) {
+    console.error("No authentication token found");
+    return;
+  }
+
   await fetch(`${process.env.BASE_URL}/product/draft`, {
     method: "PUT",
     headers: {
