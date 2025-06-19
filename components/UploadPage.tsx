@@ -25,7 +25,9 @@ const UploadPage = () => {
     images: [],
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setData((prevData) => ({
       ...prevData,
@@ -57,7 +59,7 @@ const UploadPage = () => {
   ]);
 
   useEffect(() => {
-    // saveAsDraft(data, token!);
+    saveAsDraft(data);
   }, [data.thumbnail, data.images]);
 
   return (
@@ -70,6 +72,7 @@ const UploadPage = () => {
             name="name"
             placeholder="Product Name"
             onChange={handleChange}
+            value={data.name}
           />
           <div>
             <label htmlFor="description" className="block font-medium">
@@ -77,60 +80,39 @@ const UploadPage = () => {
             </label>
             <textarea
               id="description"
+              name="description"
               placeholder="Description(optional)"
               className="w-full border rounded px-3 py-2"
+              onChange={handleChange}
             ></textarea>
           </div>
-
-          <div>
-            <label htmlFor="discount" className="block font-medium">
-              Discount* (%)
-            </label>
-            <input
-              id="discount"
-              type="number"
-              min="0"
-              max="100"
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="price" className="block font-medium">
-              Price* ($)
-            </label>
-            <input
-              id="price"
-              type="number"
-              min="0"
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="stock" className="block font-medium">
-              Stock*
-            </label>
-            <input
-              id="stock"
-              type="number"
-              min="0"
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="category" className="block font-medium">
-              Category*
-            </label>
-            <input
-              id="category"
-              type="text"
-              placeholder="Category"
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-
+          <CustomInput
+            name="discount"
+            placeholder="Discount (%)"
+            onChange={handleChange}
+            type="number"
+            value={data.discount}
+          />
+          <CustomInput
+            name="price"
+            placeholder="Product Price"
+            onChange={handleChange}
+            type="number"
+            value={data.price}
+          />
+          <CustomInput
+            name="stock"
+            placeholder="Product Stock"
+            onChange={handleChange}
+            type="number"
+            value={data.stock}
+          />
+          <CustomInput
+            name="category"
+            placeholder="Product Category"
+            onChange={handleChange}
+            value={data.category}
+          />
           <div className="flex gap-4 pt-2">
             <button type="button" className={btn_red}>
               Clear
