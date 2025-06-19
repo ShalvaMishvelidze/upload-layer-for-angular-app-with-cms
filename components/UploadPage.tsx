@@ -5,11 +5,14 @@ import {
   createNewProduct,
   deleteDraft,
   deleteImagesParallel,
+  generateProductDescription,
   getDraft,
   saveAsDraft,
 } from "@/utils/actions";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
+  btn_blue,
+  btn_blue_disabled,
   btn_green,
   btn_red,
   main,
@@ -102,6 +105,21 @@ const UploadPage = () => {
               onChange={handleChange}
               value={data.description}
             ></textarea>
+            <button
+              type="button"
+              className={!data.name.trim() ? btn_blue_disabled : btn_blue}
+              onClick={() =>
+                generateProductDescription(data.name).then((description) =>
+                  setData((prevData) => ({ ...prevData, description }))
+                )
+              }
+              disabled={!data.name.trim()}
+              title={
+                !data.name.trim() ? "Please enter a product name first" : ""
+              }
+            >
+              Generate Description
+            </button>
           </div>
           <CustomInput
             name="discount"

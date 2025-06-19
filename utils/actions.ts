@@ -154,3 +154,15 @@ export async function createNewProduct(product: Product) {
     `http://angular.myapp.local/dashboard/my-products/${data.product.id}`
   ); // Redirect to the newly created product page
 }
+
+export async function generateProductDescription(name: string) {
+  const response = await fetch(
+    `${process.env.BASE_URL}/product/generate-description`,
+    {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }
+  );
+  const data = await response.json();
+  return data.description;
+}
