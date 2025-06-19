@@ -1,6 +1,7 @@
 "use server";
 
 import { ImageModel } from "@/interfaces/Image";
+import { Product } from "@/interfaces/Product";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -130,4 +131,26 @@ export async function deleteDraft() {
   } catch (err: any) {
     console.error("Error deleting draft:", err?.error, err?.code);
   }
+}
+
+export async function createNewProduct(product: Product) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) {
+    redirect("http://angular.myapp.local");
+  }
+
+  const response = await fetch(`${process.env.BASE_URL}/product/create`, {
+    method: "POST",
+    body: JSON.stringify(product),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  redirect(
+    `http://angular.myapp.local/dashboard/my-products/${data.product.id}`
+  ); // Redirect to the newly created product page
 }

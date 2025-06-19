@@ -2,6 +2,7 @@
 import ImageUpload from "@/components/ImageUpload";
 import { Product } from "@/interfaces/Product";
 import {
+  createNewProduct,
   deleteDraft,
   deleteImagesParallel,
   getDraft,
@@ -99,6 +100,7 @@ const UploadPage = () => {
               placeholder="Description(optional)"
               className="w-full border rounded px-3 py-2"
               onChange={handleChange}
+              value={data.description}
             ></textarea>
           </div>
           <CustomInput
@@ -140,7 +142,11 @@ const UploadPage = () => {
             >
               Clear
             </button>
-            <button type="submit" className={btn_green}>
+            <button
+              type="submit"
+              className={btn_green}
+              onClick={() => createNewProduct(data)}
+            >
               Create
             </button>
           </div>
