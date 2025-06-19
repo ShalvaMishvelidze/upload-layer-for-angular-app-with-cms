@@ -7,26 +7,13 @@ import { deleteFromCloudinary, uploadToCloudinary } from "@/utils/actions";
 import { Product } from "@/interfaces/Product";
 
 const ImageUpload = ({
-  setMainData,
+  data,
+  setData,
 }: {
-  setMainData: Dispatch<SetStateAction<Product>>;
+  data: Product;
+  setData: Dispatch<SetStateAction<Product>>;
 }) => {
-  const [data, setData] = useState<{
-    thumbnail: ImageModel;
-    images: ImageModel[];
-  }>({
-    thumbnail: { url: null, id: null },
-    images: [],
-  });
   const [touched, setTouched] = useState(false);
-
-  useEffect(() => {
-    setMainData((prev) => ({
-      ...prev,
-      thumbnail: data.thumbnail,
-      images: data.images,
-    }));
-  }, [data]);
 
   return (
     <div className="flex flex-col gap-[12px] w-full">
@@ -65,6 +52,7 @@ const ImageUpload = ({
             onChange={(e) => {
               uploadToCloudinary(e.target.files![0]).then((res) => {
                 setData((prev) => ({
+                  ...prev,
                   thumbnail: res,
                   images: [res, ...prev.images],
                 }));
@@ -111,23 +99,32 @@ const ImageUpload = ({
           );
         })}
 
-        <label
-          className="w-1/6 h-[50px] border-[2px] rounded-[5px] border-dashed border-blue-400 flex items-center justify-center cursor-pointer bg-blue-100 hover:bg-blue-200 group transition-colors duration-300"
-          title={!data.thumbnail.url ? "Please upload a thumbnail first." : ""}
-        >
-          <Plus size={30} />
-          <input
-            onChange={(e) => {
-              uploadToCloudinary(e.target.files![0]).then((res) => {
-                setData((prev) => ({ ...prev, images: [...prev.images, res] }));
-              });
-            }}
-            accept="image/*"
-            type="file"
-            className="hidden"
-            disabled={data.images.length >= 5 || !data.thumbnail.url}
-          />
-        </label>
+        {data.images.length < 5 && (
+          <label
+            className={`w-1/6 h-[50px] border-[2px] rounded-[5px] border-dashed border-blue-400 flex items-center justify-center ${
+              data.thumbnail.url ? "cursor-pointer" : "cursor-not-allowed"
+            } bg-blue-100 hover:bg-blue-200 group transition-colors duration-300`}
+            title={
+              !data.thumbnail.url ? "Please upload a thumbnail first." : ""
+            }
+          >
+            <Plus size={30} />
+            <input
+              onChange={(e) => {
+                uploadToCloudinary(e.target.files![0]).then((res) => {
+                  setData((prev) => ({
+                    ...prev,
+                    images: [...prev.images, res],
+                  }));
+                });
+              }}
+              accept="image/*"
+              type="file"
+              className="hidden"
+              disabled={data.images.length >= 5 || !data.thumbnail.url}
+            />
+          </label>
+        )}
       </div>
     </div>
   );

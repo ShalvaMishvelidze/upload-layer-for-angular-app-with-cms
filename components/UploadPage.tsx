@@ -1,7 +1,12 @@
 "use client";
 import ImageUpload from "@/components/ImageUpload";
 import { Product } from "@/interfaces/Product";
-import { getDraft, saveAsDraft } from "@/utils/actions";
+import {
+  deleteDraft,
+  deleteImagesParallel,
+  getDraft,
+  saveAsDraft,
+} from "@/utils/actions";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   btn_green,
@@ -12,18 +17,20 @@ import {
 } from "./UploadPage.styles";
 import CustomInput from "./CustomInput";
 
+const initialProduct: Product = {
+  name: "",
+  description: "",
+  price: 0,
+  category: "",
+  discount: 0,
+  stock: 0,
+  thumbnail: { url: null, id: null },
+  images: [],
+};
+
 const UploadPage = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [data, setData] = useState<Product>({
-    name: "",
-    description: "",
-    price: 0,
-    category: "",
-    discount: 0,
-    stock: 0,
-    thumbnail: { url: null, id: null },
-    images: [],
-  });
+  const [data, setData] = useState<Product>(initialProduct);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -36,7 +43,11 @@ const UploadPage = () => {
   };
 
   useLayoutEffect(() => {
-    getDraft().then((draft) => setData(draft));
+    getDraft().then((draft) => {
+      console.log(draft);
+
+      setData(draft);
+    });
   }, []);
 
   useEffect(() => {
@@ -70,7 +81,7 @@ const UploadPage = () => {
     <main className={main}>
       <section className={upload_section}>
         <h2 className={title}>New Product</h2>
-        <ImageUpload setMainData={setData} />
+        <ImageUpload data={data} setData={setData} />
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <CustomInput
             name="name"
@@ -118,7 +129,15 @@ const UploadPage = () => {
             value={data.category}
           />
           <div className="flex gap-4 pt-2">
-            <button type="button" className={btn_red}>
+            <button
+              type="button"
+              className={btn_red}
+              onClick={() =>
+                deleteImagesParallel(data.images).then(() =>
+                  deleteDraft().then(() => setData(initialProduct))
+                )
+              }
+            >
               Clear
             </button>
             <button type="submit" className={btn_green}>

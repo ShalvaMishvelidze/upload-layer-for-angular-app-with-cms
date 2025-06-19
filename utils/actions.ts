@@ -1,5 +1,6 @@
 "use server";
 
+import { ImageModel } from "@/interfaces/Image";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -42,6 +43,22 @@ export async function deleteFromCloudinary(publicId: string) {
     const errorData = await response.json();
     throw new Error(`Error deleting from Cloudinary: ${errorData.message}`);
   }
+}
+
+export async function deleteImagesParallel(images: ImageModel[]) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) {
+    redirect("http://angular.myapp.local");
+  }
+
+  await fetch(`${process.env.BASE_URL}/cloudinary/delete-many`, {
+    method: "DELETE",
+    body: JSON.stringify(images.map((image) => image.id)),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
 export async function saveAsDraft(product: any) {
@@ -94,4 +111,23 @@ export async function getDraft() {
     thumbnail,
     images,
   };
+}
+
+export async function deleteDraft() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) {
+      redirect("http://angular.myapp.local");
+    }
+
+    await fetch(`${process.env.BASE_URL}/product/draft`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (err: any) {
+    console.error("Error deleting draft:", err?.error, err?.code);
+  }
 }
