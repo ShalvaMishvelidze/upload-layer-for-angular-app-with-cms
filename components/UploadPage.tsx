@@ -118,7 +118,7 @@ const UploadPage = () => {
                 !data.name.trim() ? "Please enter a product name first" : ""
               }
             >
-              Generate Description
+              Generate with AI
             </button>
           </div>
           <CustomInput
