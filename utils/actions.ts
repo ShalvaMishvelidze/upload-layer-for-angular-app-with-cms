@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function uploadToCloudinary(file: File) {
   try {
@@ -47,8 +48,7 @@ export async function saveAsDraft(product: any) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   if (!token) {
-    console.error("No authentication token found");
-    return;
+    redirect("http://angular.myapp.local");
   }
 
   await fetch(`${process.env.BASE_URL}/product/draft`, {

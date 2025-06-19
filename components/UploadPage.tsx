@@ -2,7 +2,7 @@
 import ImageUpload from "@/components/ImageUpload";
 import { Product } from "@/interfaces/Product";
 import { saveAsDraft } from "@/utils/actions";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   btn_green,
   btn_red,
@@ -10,22 +10,10 @@ import {
   title,
   upload_section,
 } from "./UploadPage.styles";
+import CustomInput from "./CustomInput";
 
 const UploadPage = () => {
-  // const token = localStorage.getItem("token");
-
-  // if (!token) {
-  //   return (
-  //     <main className={main}>
-  //       <section className={upload_section}>
-  //         <h2 className={title}>Please log in to upload products</h2>
-  //       </section>
-  //     </main>
-  //   );
-  // }
-
-  // console.log("Token:", token);
-
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [data, setData] = useState<Product>({
     name: "",
     description: "",
@@ -37,8 +25,28 @@ const UploadPage = () => {
     images: [],
   });
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   useEffect(() => {
-    // saveAsDraft(data);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      saveAsDraft(data);
+    }, 2000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [
     data.name,
     data.description,
@@ -58,18 +66,11 @@ const UploadPage = () => {
         <h2 className={title}>New Product</h2>
         <ImageUpload setMainData={setData} />
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block font-medium">
-              Name*
-            </label>
-            <input
-              id="name"
-              type="text"
-              placeholder="Product name"
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-
+          <CustomInput
+            name="name"
+            placeholder="Product Name"
+            onChange={handleChange}
+          />
           <div>
             <label htmlFor="description" className="block font-medium">
               Description
