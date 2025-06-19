@@ -1,8 +1,8 @@
 "use client";
 import ImageUpload from "@/components/ImageUpload";
 import { Product } from "@/interfaces/Product";
-import { saveAsDraft } from "@/utils/actions";
-import { useEffect, useRef, useState } from "react";
+import { getDraft, saveAsDraft } from "@/utils/actions";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   btn_green,
   btn_red,
@@ -34,6 +34,10 @@ const UploadPage = () => {
       [name]: value,
     }));
   };
+
+  useLayoutEffect(() => {
+    getDraft().then((draft) => setData(draft));
+  }, []);
 
   useEffect(() => {
     if (timeoutRef.current) {

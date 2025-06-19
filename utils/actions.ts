@@ -59,3 +59,39 @@ export async function saveAsDraft(product: any) {
     body: JSON.stringify(product),
   });
 }
+
+export async function getDraft() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) {
+    redirect("http://angular.myapp.local");
+  }
+
+  const response = await fetch(`${process.env.BASE_URL}/product/draft`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  const {
+    name,
+    description,
+    price,
+    category,
+    discount,
+    stock,
+    thumbnail,
+    images,
+  } = data.draft;
+
+  return {
+    name,
+    description,
+    price,
+    category,
+    discount,
+    stock,
+    thumbnail,
+    images,
+  };
+}
