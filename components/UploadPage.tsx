@@ -7,6 +7,7 @@ import {
   deleteImagesParallel,
   generateProductDescription,
   getDraft,
+  redirectToMyProducts,
   saveAsDraft,
 } from "@/utils/actions";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -20,6 +21,7 @@ import {
   upload_section,
 } from "./UploadPage.styles";
 import CustomInput from "./CustomInput";
+import X from "@/icons/x";
 
 const initialProduct: Product = {
   name: "",
@@ -83,6 +85,12 @@ const UploadPage = () => {
 
   return (
     <main className={main}>
+      <button
+        className={`fixed right-[20px] top-[30px] cursor-pointer`}
+        onClick={redirectToMyProducts}
+      >
+        <X size={40} />
+      </button>
       <section className={upload_section}>
         <h2 className={title}>New Product</h2>
         <ImageUpload data={data} setData={setData} />

@@ -166,3 +166,7 @@ export async function generateProductDescription(name: string) {
   const data = await response.json();
   return data.description;
 }
+
+export async function redirectToMyProducts() {
+  redirect("http://angular.myapp.local/dashboard/my-products");
+}
