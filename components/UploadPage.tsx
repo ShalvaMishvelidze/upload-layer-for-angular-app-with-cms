@@ -50,9 +50,7 @@ const UploadPage = () => {
 
   useLayoutEffect(() => {
     getDraft().then((draft) => {
-      console.log(draft);
-
-      setData(draft);
+      setData(draft ? draft : initialProduct);
     });
   }, []);
 

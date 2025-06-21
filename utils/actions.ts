@@ -5,8 +5,19 @@ import { Product } from "@/interfaces/Product";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+export async function validateToken() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) {
+    redirect("http://angular.myapp.local");
+  }
+
+  return token;
+}
+
 export async function uploadToCloudinary(file: File) {
   try {
+    await validateToken();
     const response = await fetch(`${process.env.BASE_URL}/cloudinary/sign`, {
       method: "POST",
     });
@@ -31,96 +42,93 @@ export async function uploadToCloudinary(file: File) {
     return { url: cloudinaryData.secure_url, id: cloudinaryData.public_id };
   } catch (error) {
     console.error("Error uploading to Cloudinary:", error);
-    throw error;
   }
 }
 
 export async function deleteFromCloudinary(publicId: string) {
-  const response = await fetch(`${process.env.BASE_URL}/cloudinary/delete`, {
-    method: "DELETE",
-    body: JSON.stringify({ publicId }),
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Error deleting from Cloudinary: ${errorData.message}`);
+  try {
+    await validateToken();
+
+    await fetch(`${process.env.BASE_URL}/cloudinary/delete`, {
+      method: "DELETE",
+      body: JSON.stringify({ publicId }),
+    });
+  } catch (error) {
+    console.error("Error deleting from Cloudinary:", error);
   }
 }
 
 export async function deleteImagesParallel(images: ImageModel[]) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) {
-    redirect("http://angular.myapp.local");
-  }
+  try {
+    const token = await validateToken();
 
-  await fetch(`${process.env.BASE_URL}/cloudinary/delete-many`, {
-    method: "DELETE",
-    body: JSON.stringify(images.map((image) => image.id)),
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    await fetch(`${process.env.BASE_URL}/cloudinary/delete-many`, {
+      method: "DELETE",
+      body: JSON.stringify(images.map((image) => image.id)),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting images:", error);
+  }
 }
 
 export async function saveAsDraft(product: any) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) {
-    redirect("http://angular.myapp.local");
-  }
+  try {
+    const token = await validateToken();
 
-  await fetch(`${process.env.BASE_URL}/product/draft`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(product),
-  });
+    await fetch(`${process.env.BASE_URL}/product/draft`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(product),
+    });
+  } catch (error) {
+    console.error("Error saving draft:", error);
+  }
 }
 
-export async function getDraft() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) {
-    redirect("http://angular.myapp.local");
+export async function getDraft(): Promise<Product | undefined> {
+  try {
+    const token = await validateToken();
+
+    const response = await fetch(`${process.env.BASE_URL}/product/draft`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    const {
+      name,
+      description,
+      price,
+      category,
+      discount,
+      stock,
+      thumbnail,
+      images,
+    } = data.draft;
+
+    return {
+      name,
+      description,
+      price,
+      category,
+      discount,
+      stock,
+      thumbnail,
+      images,
+    };
+  } catch (error) {
+    console.error("Error fetching draft:", error);
   }
-
-  const response = await fetch(`${process.env.BASE_URL}/product/draft`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const data = await response.json();
-  const {
-    name,
-    description,
-    price,
-    category,
-    discount,
-    stock,
-    thumbnail,
-    images,
-  } = data.draft;
-
-  return {
-    name,
-    description,
-    price,
-    category,
-    discount,
-    stock,
-    thumbnail,
-    images,
-  };
 }
 
 export async function deleteDraft() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) {
-      redirect("http://angular.myapp.local");
-    }
+    const token = await validateToken();
 
     await fetch(`${process.env.BASE_URL}/product/draft`, {
       method: "DELETE",
@@ -134,37 +142,43 @@ export async function deleteDraft() {
 }
 
 export async function createNewProduct(product: Product) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) {
-    redirect("http://angular.myapp.local");
+  try {
+    const token = await validateToken();
+
+    const response = await fetch(`${process.env.BASE_URL}/product/create`, {
+      method: "POST",
+      body: JSON.stringify(product),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    redirect(
+      `http://angular.myapp.local/dashboard/my-products/${data.product.id}`
+    );
+  } catch (error) {
+    console.error("Error creating new product:", error);
   }
-
-  const response = await fetch(`${process.env.BASE_URL}/product/create`, {
-    method: "POST",
-    body: JSON.stringify(product),
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  redirect(
-    `http://angular.myapp.local/dashboard/my-products/${data.product.id}`
-  ); // Redirect to the newly created product page
 }
 
 export async function generateProductDescription(name: string) {
-  const response = await fetch(
-    `${process.env.BASE_URL}/product/generate-description`,
-    {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    }
-  );
-  const data = await response.json();
-  return data.description;
+  try {
+    const token = await validateToken();
+
+    const response = await fetch(
+      `${process.env.BASE_URL}/product/generate-description`,
+      {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      }
+    );
+    const data = await response.json();
+    return data.description;
+  } catch (error) {
+    console.error("Error generating product description:", error);
+  }
 }
 
 export async function redirectToMyProducts() {
