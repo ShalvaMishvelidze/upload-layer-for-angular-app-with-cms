@@ -34,7 +34,7 @@ const initialProduct: Product = {
   images: [],
 };
 
-const UploadPage = () => {
+const Upload = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [data, setData] = useState<Product>(initialProduct);
 
@@ -82,7 +82,7 @@ const UploadPage = () => {
   }, [data.thumbnail, data.images]);
 
   return (
-    <main className={main}>
+    <section className={main}>
       <button
         className={`fixed right-[20px] top-[30px] cursor-pointer`}
         onClick={redirectToMyProducts}
@@ -177,7 +177,7 @@ const UploadPage = () => {
           </div>
         </form>
       </section>
-    </main>
+    </section>
   );
 };
-export default UploadPage;
+export default Upload;

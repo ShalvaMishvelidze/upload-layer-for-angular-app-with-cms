@@ -1,5 +1,5 @@
-import UploadPage from "@/components/UploadPage";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <UploadPage />;
+  redirect("/upload/product");
 }
